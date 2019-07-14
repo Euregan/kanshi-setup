@@ -1,0 +1,72 @@
+const prompts = require('prompts')
+const fs = require('fs')
+const path = require('path')
+const childProcess = require('child_process')
+const chalk = require('chalk')
+const ora = require('ora');
+
+
+const rawTarget = process.argv[2]
+
+if (!rawTarget) {
+  console.error('You must specify a target folder')
+  return 1
+}
+
+const targetFolder = path.resolve(rawTarget)
+
+if (!fs.existsSync(path.resolve(targetFolder, '..'))) {
+  console.error('The parent folder does not exist')
+  return 1
+}
+
+
+fs.mkdirSync(targetFolder, { recursive: true })
+
+const spawn = (command, arguments, options) =>
+  childProcess.spawn(command, arguments, {shell: process.platform == 'win32', ...options})
+
+const run = command => new Promise((resolve, reject) => {
+  const splitCommand = command.split(' ')
+  const childProcess = spawn(splitCommand[0], splitCommand.slice(1), {cwd: targetFolder})
+  // childProcess.stdout.pipe(process.stdout)
+  childProcess.stderr.pipe(process.stderr)
+  childProcess.on('close', code => {
+    if (code === 0) {
+      resolve()
+    } else {
+      reject(`process failed with code ${code}`)
+    }
+  })
+})
+
+const install = package => () => new Promise((resolve, reject) => {
+  const spinner = ora(`installing ${package}`).start()
+
+  const childProcess = spawn('npm', ['install', package], {cwd: targetFolder})
+  childProcess.stderr.pipe(process.stderr)
+  childProcess.on('close', code => {
+    if (code === 0) {
+      spinner.succeed(`installed ${package}`)
+      resolve()
+    } else {
+      spinner.fail(`installation of ${package} failed with code ${code}`)
+      reject()
+    }
+  })
+})
+
+run('npm init -y')
+  .then(() => {
+    const package = JSON.parse(fs.readFileSync(path.resolve(targetFolder, 'package.json'), 'utf-8'))
+    package.private = true
+    package.scripts = {}
+    delete package.description
+    delete package.keywords
+    delete package.author
+    delete package.license
+    fs.writeFileSync(path.resolve(targetFolder, 'package.json'), JSON.stringify(package, null, 2))
+  })
+  .then(install('@kanshi/kanshi-sha'))
+  .then(install('@kanshi/kanshi'))
+  .catch(console.error)

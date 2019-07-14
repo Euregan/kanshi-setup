@@ -1,0 +1,19 @@
+{
+  "name": "@kanshi/setup",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "author": "Valentin Manceaux-Panot",
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "ora": "^3.4.0",
+    "prompts": "^2.1.0"
+  }
+}
