@@ -29,7 +29,6 @@ const spawn = (command, arguments, options) =>
 const run = command => new Promise((resolve, reject) => {
   const splitCommand = command.split(' ')
   const childProcess = spawn(splitCommand[0], splitCommand.slice(1), {cwd: targetFolder})
-  // childProcess.stdout.pipe(process.stdout)
   childProcess.stderr.pipe(process.stderr)
   childProcess.on('close', code => {
     if (code === 0) {
@@ -43,7 +42,7 @@ const run = command => new Promise((resolve, reject) => {
 const install = package => () => new Promise((resolve, reject) => {
   const spinner = ora(`installing ${package}`).start()
 
-  const childProcess = spawn('npm', ['install', package], {cwd: targetFolder})
+  const childProcess = spawn('npm', ['install', package, '--silent'], {cwd: targetFolder})
   childProcess.stderr.pipe(process.stderr)
   childProcess.on('close', code => {
     if (code === 0) {
@@ -60,7 +59,7 @@ run('npm init -y')
   .then(() => {
     const package = JSON.parse(fs.readFileSync(path.resolve(targetFolder, 'package.json'), 'utf-8'))
     package.private = true
-    package.scripts = {}
+    package.scripts = { start: 'node index.js' }
     delete package.description
     delete package.keywords
     delete package.author
@@ -69,4 +68,12 @@ run('npm init -y')
   })
   .then(install('@kanshi/kanshi-sha'))
   .then(install('@kanshi/kanshi'))
+  .then(() => {
+      fs.copyFileSync('setup/launcher.js', path.resolve(targetFolder, 'index.js'))
+      fs.mkdirSync(path.resolve(targetFolder, 'configuration'))
+      fs.copyFileSync('setup/standalones.js', path.resolve(targetFolder, 'configuration', 'standalones.js'))
+      fs.copyFileSync('setup/packages.js', path.resolve(targetFolder, 'configuration', 'packages.js'))
+      fs.copyFileSync('setup/providers.js', path.resolve(targetFolder, 'configuration', 'providers.js'))
+      fs.mkdirSync(path.resolve(targetFolder, 'providers'))
+  })
   .catch(console.error)
