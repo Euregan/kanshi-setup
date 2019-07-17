@@ -81,6 +81,9 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
       delete package.license
       fs.writeFileSync(path.resolve(targetFolder, 'package.json'), JSON.stringify(package, null, 2))
     })
+    .then(() => {
+      fs.writeFileSync(path.resolve(targetFolder, '.gitignore'), 'node_modules')
+    })
     .then(install('@kanshi/kanshi-sha', targetFolder))
     .then(install('@kanshi/kanshi', targetFolder))
     .then(() => {
