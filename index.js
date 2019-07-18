@@ -113,6 +113,18 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
     .then(() => {
       const manifest = JSON.parse(fs.readFileSync(path.resolve('node_modules', provider, 'kanshi.json'), 'utf-8'))
       fs.writeFileSync(path.resolve('providers', `${manifest.name}.js`), `module.exports = require('${provider}')`)
+
+      const configuration = (manifest.name + ': ' + JSON.stringify({
+        provider: manifest.name,
+        configuration: manifest.configuration.provider
+      }, null, 2) + ',')
+          .split("\n")
+          .map(line => '  ' + line)
+          .join("\n")
+
+      let providers = fs.readFileSync(path.resolve('configuration', 'providers.js'), 'utf-8').split("\n")
+      providers.splice(1, 0, configuration)
+      fs.writeFileSync(path.resolve('configuration', 'providers.js'), providers.join("\n"))
     })
     .catch(console.error)
 }
