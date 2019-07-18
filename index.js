@@ -111,6 +111,8 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
   fetch(`https://unpkg.com/${provider}/kanshi.json`)
     .then(install(provider))
     .then(() => {
+      const spinner = ora(`setting up ${provider}`).start()
+
       const manifest = JSON.parse(fs.readFileSync(path.resolve('node_modules', provider, 'kanshi.json'), 'utf-8'))
       fs.writeFileSync(path.resolve('providers', `${manifest.name}.js`), `module.exports = require('${provider}')`)
 
@@ -130,7 +132,7 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
       const standalonesConfigurationPath = path.relative('.', path.resolve('configuration', 'standalones.js'))
       const packagesConfigurationPath = path.relative('.', path.resolve('configuration', 'packages.js'))
 
-      console.log(`${chalk.green('√')} ${chalk.bold(manifest.name)} has been installed successfully`)
+      spinner.succeed(`${chalk.bold(manifest.name)} has been installed successfully`)
       console.log(`  A temporary configuration skeleton has been set up in ${providersConfigurationPath}`)
       console.log(`  The provider configuration (${providersConfigurationPath}) must specify:`)
       for (const key in manifest.configuration.provider) {
