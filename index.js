@@ -125,6 +125,21 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
       let providers = fs.readFileSync(path.resolve('configuration', 'providers.js'), 'utf-8').split("\n")
       providers.splice(1, 0, configuration)
       fs.writeFileSync(path.resolve('configuration', 'providers.js'), providers.join("\n"))
+
+      const providersConfigurationPath = path.relative('.', path.resolve('configuration', 'providers.js'))
+      const standalonesConfigurationPath = path.relative('.', path.resolve('configuration', 'standalones.js'))
+      const packagesConfigurationPath = path.relative('.', path.resolve('configuration', 'packages.js'))
+
+      console.log(`${chalk.green('√')} ${chalk.bold(manifest.name)} has been installed successfully`)
+      console.log(`  A temporary configuration skeleton has been set up in ${providersConfigurationPath}`)
+      console.log(`  The provider configuration (${providersConfigurationPath}) must specify:`)
+      for (const key in manifest.configuration.provider) {
+        console.log(`    ${chalk.bold(key)}: ${manifest.configuration.provider[key]}`)
+      }
+      console.log(`  The applications configurations (${standalonesConfigurationPath} and ${packagesConfigurationPath}) must specify:`)
+      for (const key in manifest.configuration.application) {
+        console.log(`    ${chalk.bold(key)}: ${manifest.configuration.application[key]}`)
+      }
     })
     .catch(console.error)
 }
