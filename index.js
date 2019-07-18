@@ -142,6 +142,8 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
       for (const key in manifest.configuration.application) {
         console.log(`    ${chalk.bold(key)}: ${manifest.configuration.application[key]}`)
       }
+      console.log(`  This provider can be used for:`)
+      manifest.categories.map(category => console.log(`    ${chalk.bold(category)}`))
     })
     .catch(console.error)
 }
