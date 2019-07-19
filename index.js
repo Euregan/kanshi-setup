@@ -104,9 +104,6 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
         path.resolve(targetFolder, 'public/js/app.js')
       )
       fs.readdirSync(path.resolve(targetFolder, 'node_modules/@kanshi/kanshi/dist/css')).map(file => {
-        console.log(file)
-        console.log(path.resolve(targetFolder, 'node_modules/@kanshi/kanshi/dist/css', file))
-        console.log(path.resolve(targetFolder, 'public/css', file))
         fs.copyFileSync(
           path.resolve(targetFolder, 'node_modules/@kanshi/kanshi/dist/css', file),
           path.resolve(targetFolder, 'public/css', file)
