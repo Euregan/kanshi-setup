@@ -35,10 +35,10 @@ const run = (command, directory) => new Promise((resolve, reject) => {
   })
 })
 
-const install = (package, directory) => () => new Promise((resolve, reject) => {
+const install = (package, {directory, dev} = {directory: null, dev: false}) => () => new Promise((resolve, reject) => {
   const spinner = ora(`installing ${package}`).start()
 
-  const childProcess = spawn('npm', ['install', package, '--silent'], {cwd: directory || path.resolve('.')})
+  const childProcess = spawn('npm', ['install', package, '--silent'].concat(dev ? ['--save-dev'] : []), {cwd: directory || path.resolve('.')})
   childProcess.stderr.pipe(process.stderr)
   childProcess.on('close', code => {
     if (code === 0) {
@@ -84,8 +84,9 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
     .then(() => {
       fs.writeFileSync(path.resolve(targetFolder, '.gitignore'), 'node_modules')
     })
-    .then(install('@kanshi/kanshi-sha', targetFolder))
-    .then(install('@kanshi/kanshi', targetFolder))
+    .then(install('@kanshi/kanshi-sha', {directory: targetFolder}))
+    .then(install('@kanshi/kanshi', {directory: targetFolder}))
+    .then(install('@kanshi/setup', {directory: targetFolder, dev: true}))
     .then(() => {
       fs.copyFileSync(path.resolve(__dirname, 'setup/launcher.js'), path.resolve(targetFolder, 'index.js'))
       fs.mkdirSync(path.resolve(targetFolder, 'configuration'))
