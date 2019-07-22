@@ -125,7 +125,16 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
 
   const provider = process.argv[3]
 
-  fetch(`https://unpkg.com/${provider}/kanshi.json`)
+  Promise.resolve()
+    .then(() => {
+      const spinner = ora(`checking ${provider}`).start()
+      return fetch(`https://unpkg.com/${provider}/kanshi.json`)
+        .then(() => spinner.succeed(`${provider} has a valid manifest`))
+        .catch(error => {
+          spinner.fail(error)
+          return Promise.reject(error)
+        })
+    })
     .then(install(provider))
     .then(() => {
       const spinner = ora(`setting up ${provider}`).start()
@@ -149,18 +158,18 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
       const standalonesConfigurationPath = path.relative('.', path.resolve('configuration', 'standalones.js'))
       const packagesConfigurationPath = path.relative('.', path.resolve('configuration', 'packages.js'))
 
-      spinner.succeed(`${chalk.bold(manifest.name)} has been installed successfully`)
-      console.log(`  A temporary configuration skeleton has been set up in ${providersConfigurationPath}`)
-      console.log(`  The provider configuration (${providersConfigurationPath}) must specify:`)
+      spinner.succeed(`The ${chalk.bold(manifest.name)} provider has been installed successfully`)
+      console.log(`A temporary configuration skeleton has been set up in ${providersConfigurationPath}`)
+      console.log(`The provider configuration (${providersConfigurationPath}) must specify:`)
       for (const key in manifest.configuration.provider) {
-        console.log(`    ${chalk.bold(key)}: ${manifest.configuration.provider[key]}`)
+        console.log(`  ${chalk.bold(key)}: ${manifest.configuration.provider[key]}`)
       }
-      console.log(`  The applications configurations (${standalonesConfigurationPath} and ${packagesConfigurationPath}) must specify:`)
+      console.log(`The applications configurations (${standalonesConfigurationPath} and ${packagesConfigurationPath}) must specify:`)
       for (const key in manifest.configuration.application) {
-        console.log(`    ${chalk.bold(key)}: ${manifest.configuration.application[key]}`)
+        console.log(`  ${chalk.bold(key)}: ${manifest.configuration.application[key]}`)
       }
-      console.log(`  This provider can be used for:`)
-      manifest.categories.map(category => console.log(`    ${chalk.bold(category)}`))
+      console.log(`This provider can be used for:`)
+      manifest.categories.map(category => console.log(`  ${chalk.bold(category)}`))
     })
     .catch(console.error)
 }
