@@ -1,4 +1,4 @@
-const server = require('@kanshi/kanshi-sha')
+const server = require('@kanshi/kanshi/server/index')
 
 server({
     configuration: 'configuration',

@@ -84,7 +84,7 @@ if (argument !== 'install' || !fs.existsSync(path.resolve('.', 'package.json')) 
     .then(() => {
       fs.writeFileSync(path.resolve(targetFolder, '.gitignore'), "node_modules\n.env")
     })
-    .then(install('@kanshi/kanshi-sha', {directory: targetFolder}))
+    .then(install('elm@0.19.0-no-deps', {directory: targetFolder}))
     .then(install('@kanshi/kanshi', {directory: targetFolder}))
     .then(install('@kanshi/setup', {directory: targetFolder, dev: true}))
     .then(() => {
